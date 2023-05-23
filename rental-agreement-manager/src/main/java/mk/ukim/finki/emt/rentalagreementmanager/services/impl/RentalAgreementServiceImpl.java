@@ -13,6 +13,7 @@ import mk.ukim.finki.emt.sharedkernel.domain.financial.Money;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import javax.validation.Validator;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +25,7 @@ import java.util.Objects;
 public class RentalAgreementServiceImpl implements RentalAgreementService {
     private final RentalAgreementRepository rentalAgreementRepository;
     private final VehicleClient vehicleClient;
-
+    private final Validator validator;
     @Override
     public Optional<RentalAgreement> findById(RentalAgreementId id) {
         return rentalAgreementRepository.findById(id);
@@ -48,6 +49,11 @@ public class RentalAgreementServiceImpl implements RentalAgreementService {
             throw new IllegalArgumentException("Vehicle not available");
         }
         // TODO: check for customer data if we implement the customerManagement bounded context
+        var check = validator.validate(form);
+        if(check.size()>0)
+        {
+            throw new IllegalArgumentException("All fields are required");
+        }
         RentalAgreement agreement = new RentalAgreement(form.getVehicleId(), form.getLocationId(), form.getCustomerId(),
                 form.getRentalEndDate(), form.getRentalReserved(), form.getCurrency(), form.getPenaltyCoef());
         rentalAgreementRepository.saveAndFlush(agreement);
