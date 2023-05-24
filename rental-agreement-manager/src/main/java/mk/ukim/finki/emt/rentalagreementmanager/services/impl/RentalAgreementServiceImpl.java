@@ -3,6 +3,7 @@ package mk.ukim.finki.emt.rentalagreementmanager.services.impl;
 import lombok.AllArgsConstructor;
 import mk.ukim.finki.emt.rentalagreementmanager.domain.models.RentalAgreement;
 import mk.ukim.finki.emt.rentalagreementmanager.domain.models.RentalAgreementId;
+import mk.ukim.finki.emt.rentalagreementmanager.domain.models.RentalAgreementStatus;
 import mk.ukim.finki.emt.rentalagreementmanager.domain.repository.RentalAgreementRepository;
 import mk.ukim.finki.emt.rentalagreementmanager.domain.valueobjects.Vehicle;
 import mk.ukim.finki.emt.rentalagreementmanager.domain.valueobjects.VehicleId;
@@ -44,12 +45,12 @@ public class RentalAgreementServiceImpl implements RentalAgreementService {
     @Override
     public Optional<RentalAgreement> reserveAVehicle(RentalAgreementForm form) {
         Objects.requireNonNull(form, "It mustn't be null");
+        var check = validator.validate(form);
         if(checkAvailabilityOfVehicle(form.getVehicleId(), form.getRentalReserved(), form.getRentalEndDate()))
         {
             throw new IllegalArgumentException("Vehicle not available");
         }
         // TODO: check for customer data if we implement the customerManagement bounded context
-        var check = validator.validate(form);
         if(check.size()>0)
         {
             throw new IllegalArgumentException("All fields are required");
@@ -92,8 +93,9 @@ public class RentalAgreementServiceImpl implements RentalAgreementService {
 
     @Override
     public boolean checkAvailabilityOfVehicle(VehicleId id, LocalDate from, LocalDate to) {
-        return rentalAgreementRepository.existsRentalAgreementsByVehicleIdAndRentalReservedBetween(id, from, to)
-                || rentalAgreementRepository.existsRentalAgreementsByVehicleIdAndRentalStartDateBetween(id, from, to)
-                || rentalAgreementRepository.existsRentalAgreementsByVehicleIdAndRentalEndDateBetween(id, from, to);
+        List<RentalAgreementStatus> statuses = List.of(RentalAgreementStatus.CANCELLED, RentalAgreementStatus.CLOSED);
+        return rentalAgreementRepository.existsRentalAgreementsByVehicleIdAndRentalReservedBetweenAndRentalAgreementStatusNotIn(id, from, to, statuses)
+                || rentalAgreementRepository.existsRentalAgreementsByVehicleIdAndRentalStartDateBetweenAndRentalAgreementStatusNotIn(id, from, to, statuses)
+                || rentalAgreementRepository.existsRentalAgreementsByVehicleIdAndRentalEndDateBetweenAndRentalAgreementStatusNotIn(id, from, to, statuses);
     }
 }

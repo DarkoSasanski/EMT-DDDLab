@@ -52,6 +52,7 @@ public class RentalAgreement extends AbstractEntity<RentalAgreementId> {
 
     public RentalAgreement(VehicleId vehicleId, LocationId locationId, CustomerId customerId,
                            LocalDate rentalEndDate, LocalDate rentalReserved, Currency currency, int penaltyCoef) {
+        super(RentalAgreementId.randomId(RentalAgreementId.class));
         this.vehicleId = vehicleId;
         this.locationId = locationId;
         this.customerId = customerId;
@@ -60,6 +61,7 @@ public class RentalAgreement extends AbstractEntity<RentalAgreementId> {
         this.currency = currency;
         this.penalty = new Money(currency, 0);
         this.penaltyCoef = new Money(currency, penaltyCoef);
+        this.rentalAgreementStatus=RentalAgreementStatus.RESERVED;
     }
 
     public void pickUpVehicle(Vehicle vehicle)
@@ -101,7 +103,7 @@ public class RentalAgreement extends AbstractEntity<RentalAgreementId> {
         rentalAgreementStatus = RentalAgreementStatus.CLOSED;
         returnFuel = vehicle.getFuel();
         carReturned = LocalDate.now();
-        if(ChronoUnit.DAYS.between(LocalDate.now(), rentalEndDate)!=0)
+        if(LocalDate.now().isAfter(rentalEndDate))
         {
             penalty=penalty.add(penaltyCoef.multiply((int) abs(ChronoUnit.DAYS.between(LocalDate.now(), rentalEndDate))));
         }
@@ -116,7 +118,7 @@ public class RentalAgreement extends AbstractEntity<RentalAgreementId> {
         if(rentalAgreementStatus.equals(RentalAgreementStatus.CLOSED))
         {
             Money total = vehicle.getPrice();
-            total = total.multiply((int) ChronoUnit.DAYS.between(rentalStartDate, carReturned));
+            total = total.multiply((int) ChronoUnit.DAYS.between(rentalStartDate, carReturned)+1);
             total = total.add(penalty);
             return total;
         }

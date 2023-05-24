@@ -21,8 +21,8 @@ public class Vehicle {
     }
 
     @JsonCreator
-    public Vehicle(@JsonProperty("money") Money price,@JsonProperty("fuel") int fuel, @JsonProperty("locationId") LocationId locationId) {
-        id=VehicleId.randomId(VehicleId.class);
+    public Vehicle(@JsonProperty("id") VehicleId id, @JsonProperty("money") Money price,@JsonProperty("fuel") int fuel, @JsonProperty("locationId") LocationId locationId) {
+        this.id=id;
         this.price = price;
         this.fuel = fuel;
         this.locationId=locationId;

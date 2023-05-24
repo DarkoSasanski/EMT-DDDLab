@@ -1,7 +1,10 @@
 package mk.ukim.finki.emt.rentalagreementmanager.xport.client;
 
+import mk.ukim.finki.emt.rentalagreementmanager.domain.valueobjects.LocationId;
 import mk.ukim.finki.emt.rentalagreementmanager.domain.valueobjects.Vehicle;
 import mk.ukim.finki.emt.rentalagreementmanager.domain.valueobjects.VehicleId;
+import mk.ukim.finki.emt.sharedkernel.domain.financial.Currency;
+import mk.ukim.finki.emt.sharedkernel.domain.financial.Money;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -42,12 +45,14 @@ public class VehicleClient {
     }
 
     public Vehicle findById(VehicleId vehicleId) {
-        try {
+        // todo: Implement vehicle management
+        /*try {
             URI uri = uri().path("/api/vehicle/{id}").buildAndExpand(vehicleId.getId()).toUri();
             ResponseEntity<Vehicle> response = restTemplate.exchange(uri, HttpMethod.GET, null, Vehicle.class);
             return response.getBody();
         } catch (Exception e) {
             return null; // or throw an exception, depending on your error handling strategy
-        }
+        }*/
+        return new Vehicle(new VehicleId("1"), new Money(Currency.MKD, 20), 5, new LocationId("1"));
     }
 }
